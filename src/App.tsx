@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 // TODO: import useRef
 import type { Expense } from './types/expense'
 import { STORAGE_KEY } from './constants'
@@ -16,8 +16,10 @@ function App() {
 
   const [query, setQuery] = useState('')
   // TODO: add a state for the filtered results (starts with the full expenses list)
+  const [filteredExpenses, setFilteredExpenses] = useState<Expense[]>(expenses)
 
   // TODO: create a useRef to hold the debounce timer ID
+  const debounceTimerRef = useRef<number | null>(null)
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses))
@@ -27,7 +29,20 @@ function App() {
   //       - use a useEffect with [query, expenses] deps
   //       - clear the previous timer, set a new 300ms timer
   //       - inside the timer, call filterExpenses and update the filtered results state
-  const filteredExpenses = filterExpenses(expenses, query)
+  useEffect(() => {
+    if (debounceTimerRef.current)
+        clearTimeout(debounceTimerRef.current)
+    
+    debounceTimerRef.current = setTimeout(() => {
+      const results = filterExpenses(expenses, query)
+      setFilteredExpenses(results)
+    }, 300)
+
+    return () => {
+      if (debounceTimerRef.current)
+        clearTimeout(debounceTimerRef.current)
+    }
+  }, [query, expenses])
 
   function handleAddExpense(expense: Omit<Expense, 'id'>) {
     setExpenses(prev => [
