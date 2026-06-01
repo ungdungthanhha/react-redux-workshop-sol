@@ -1,10 +1,13 @@
-interface ExpenseSummaryProps {
-  total: number
-  currencySymbol: string
-}
+import { useContext } from "react"
+import { SettingsContext } from "../App"
 
-function ExpenseSummary({ total, currencySymbol }: ExpenseSummaryProps) {
+function ExpenseSummary() {
   // TODO: consume total and currencySymbol from context instead of props
+  const context = useContext(SettingsContext)
+    if (!context)
+      return null
+  
+    const { currencySymbol, total } = context
   return (
     <div className="expense-summary">
       <span className="expense-summary-label">Total</span>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, createContext } from 'react'
 import type { Expense } from './types/expense'
 import { STORAGE_KEY } from './constants'
 import { filterExpenses } from './utils/filterExpenses'
@@ -7,6 +7,17 @@ import ExpenseList from './components/ExpenseList'
 import SearchBar from './components/SearchBar'
 import AppHeader from './components/AppHeader'
 import './App.css'
+
+type SettingsContextType = {
+  currency: 'USD' | 'VND'
+  theme: 'light' | 'dark'
+  total: number
+  currencySymbol: string
+  setCurrency: React.Dispatch<React.SetStateAction<'USD' | 'VND'>>
+  setTheme: React.Dispatch<React.SetStateAction<'light' | 'dark'>>
+}
+
+export const SettingsContext = createContext<SettingsContextType | null>(null)
 
 function App() {
   const [expenses, setExpenses] = useState<Expense[]>(() => {
@@ -45,30 +56,33 @@ function App() {
     ])
   }
 
+  const settingsValue = useMemo(() =>({
+    currency,
+    theme,
+    total,
+    currencySymbol,
+    setCurrency,
+    setTheme
+  }), [currency, theme, currencySymbol, total])
+
   // TODO: replace prop drilling with useContext
   return (
-    <div className="app-layout" data-theme={theme}>
-      <aside>
-        <h1>Expense Manager</h1>
-        <AppHeader
-          currency={currency}
-          theme={theme}
-          onCurrencyChange={setCurrency}
-          onThemeChange={setTheme}
-        />
-        <ExpenseForm onAddExpense={handleAddExpense} />
-      </aside>
-      <main>
-        <SearchBar query={query} onQueryChange={setQuery} />
-        <ExpenseList
-          expenses={filteredExpenses}
-          onDeleteExpense={handleDeleteExpense}
-          currencySymbol={currencySymbol}
-          total={total}
-          theme={theme}
-        />
-      </main>
-    </div>
+    <SettingsContext.Provider value={settingsValue}>
+      <div className="app-layout" data-theme={theme}>
+        <aside>
+          <h1>Expense Manager</h1>
+          <AppHeader />
+          <ExpenseForm onAddExpense={handleAddExpense} />
+        </aside>
+        <main>
+          <SearchBar query={query} onQueryChange={setQuery} />
+          <ExpenseList
+            expenses={filteredExpenses}
+            onDeleteExpense={handleDeleteExpense}
+          />
+        </main>
+      </div>
+    </SettingsContext.Provider>
   )
 }
 

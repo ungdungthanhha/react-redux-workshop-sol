@@ -1,15 +1,20 @@
-import { memo } from 'react'
+import { memo, useContext } from 'react'
 import type { Expense } from '../types/expense'
+import { SettingsContext } from '../App'
 
 interface ExpenseItemProps {
   expense: Expense
   onDeleteExpense: (id: string) => void
-  currencySymbol: string
-  theme: string
 }
 
-function ExpenseItem({ expense, onDeleteExpense, currencySymbol, theme }: ExpenseItemProps) {
+function ExpenseItem({ expense, onDeleteExpense }: ExpenseItemProps) {
   // TODO: consume currencySymbol and theme from context instead of props
+  const context = useContext(SettingsContext)
+  if (!context)
+    return null;
+
+  const { currencySymbol, theme } = context
+
   return (
     <li className="expense-item">
       <span className={`expense-icon category-${expense.category}`}>
