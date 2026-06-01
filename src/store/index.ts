@@ -3,25 +3,40 @@ import { expensesReducer } from './expenses/reducer'
 import type { ExpensesState } from './expenses/reducer'
 import { STORAGE_KEY } from '../constants'
 import type { ExpenseAction } from './expenses/actions'
-
 // TODO: Import filtersReducer from './filters/reducer'
+import { filtersReducer, type FiltersState } from './filters/reducer'
+import type { FilterAction } from './filters/actions'
 
-const rootReducer: Reducer<RootState, ExpenseAction> = (state = { expenses: { items: [], editingExpenseId: null } }, action) => ({
-  expenses: expensesReducer(state.expenses, action),
+type AppAction = ExpenseAction | FilterAction
+
+const rootReducer: Reducer<RootState, AppAction> = (
+  state = { 
+    expenses: { items: [], editingExpenseId: null },
+    filters: { category: null }
+  }, action) => ({
+  expenses: expensesReducer(state.expenses, action as ExpenseAction),
   // TODO: Add filters: filtersReducer(state.filters, action)
+  filters: filtersReducer(state.filters, action as FilterAction)
 })
 
 export interface RootState {
   expenses: ExpensesState
   // TODO: Add filters: FiltersState
+  filters: FiltersState
 }
 
 function loadState(): RootState {
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
-    return { expenses: saved ? { items: JSON.parse(saved) as never[], editingExpenseId: null } : { items: [], editingExpenseId: null } }
+    return { 
+      expenses: saved ? { items: JSON.parse(saved) as never[], editingExpenseId: null } : { items: [], editingExpenseId: null },
+      filters: {category: null}
+    }
   } catch {
-    return { expenses: { items: [], editingExpenseId: null } }
+    return {
+      expenses: { items: [], editingExpenseId: null },
+      filters: { category: null }
+    }
   }
 }
 

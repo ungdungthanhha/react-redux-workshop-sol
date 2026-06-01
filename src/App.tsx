@@ -6,6 +6,7 @@ import ExpenseForm from './components/ExpenseForm'
 import ExpenseList from './components/ExpenseList'
 import SearchBar from './components/SearchBar'
 import AppHeader from './components/AppHeader'
+import FilterBar from './components/FilterBar'
 import './App.css'
 
 function App() {
@@ -31,6 +32,7 @@ function AppBody() {
       </aside>
       <main>
         <SearchBar query={query} onQueryChange={setQuery} />
+        <FilterBar/>
         <ExpenseList query={query} />
       </main>
     </div>
